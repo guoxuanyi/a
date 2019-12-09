@@ -18,5 +18,6 @@ namespace MyBlog.Service.Interface
         int DeleteBlog(string blogId);
         int ReDeleteBlog(string blogId);
         int UpdateBlog(Blog blog, string userId);
+        int UpdateBlogLikeCount(string blogId);
     }
 }

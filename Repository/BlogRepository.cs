@@ -95,5 +95,12 @@ namespace MyBlog.Repository
             List<Blog> blogs = Db.Blog.AsNoTracking().Where(b => b.BlogDeleteFlag != 1).OrderByDescending(b => b.BlogViews).ToList();
             return blogs;
         }
+
+        public int UpdateBlogLikeCount(string blogId)
+        {
+            Blog blog = Db.Blog.Where(b => b.BlogDeleteFlag!=1).FirstOrDefault(b => b.BlogId == blogId);
+            blog.BlogLikeCount += 1;
+            return Db.SaveChanges();
+        }
     }
 }

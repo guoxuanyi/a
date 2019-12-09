@@ -10,11 +10,16 @@ namespace MyBlog
 {
     public class DataFactory
     {
-        private static gxyContext db = new gxyContext();
+        private static gxyContext db;
         public static gxyContext Db
         {
             get
             {
+                if (Tools.IsNull(db))
+                {
+                    db = new gxyContext();
+                    
+                }
                 return db;
             }
         }

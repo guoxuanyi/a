@@ -14,14 +14,7 @@ namespace MyBlog.Service
         public bool AddBlog(Blog blog, string userId)
         {
             int count = GetRepository<IBlogRepository>().AddBlog(blog, userId);
-            if (count != 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return count > 0 ? true : false;
         }
 
         public int DeleteBlog(string blogId)
@@ -62,19 +55,17 @@ namespace MyBlog.Service
         public List<Blog> GetNotDeleteBlogsTop4()
         {
             List<Blog> blogs = GetRepository<IBlogRepository>().GetNotDeleteBlogsTop4();
-            if (blogs.Count>=4)
-            {
-                return blogs.Take(4).ToList();
-            }
-            else
-            {
-                return blogs;
-            }
+            return blogs.Count >= 4 ? blogs.Take(4).ToList() : blogs;
         }
 
         public int UpdateBlog(Blog blog, string userId)
         {
             throw new NotImplementedException();
+        }
+
+        public int UpdateBlogLikeCount(string blogId)
+        {
+            return GetRepository<IBlogRepository>().UpdateBlogLikeCount(blogId);
         }
     }
 }

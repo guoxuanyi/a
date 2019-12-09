@@ -66,5 +66,11 @@ namespace MyBlog.Controllers
         {
             return GetService<IBlogService>().ReDeleteBlog(blogId);
         }
+
+        [HttpGet("api/v{version:ApiVersion}/Blog/blogLikeCount-update/{blogId}")]
+        public int UpdateblogLikeCount(string blogId)
+        {
+            return GetService<IBlogService>().UpdateBlogLikeCount(blogId);
+        }
     }
 }

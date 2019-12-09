@@ -36,14 +36,7 @@ namespace MyBlog.Repository
         public bool IsUserNameExist(string userName)
         {
             int count = Db.Users.AsNoTracking().Where(u => u.UserName == userName).ToList().Count;
-            if (count == 0)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return count == 0 ? false : true;
         }
 
         public int UpdateUser(Users user)
@@ -57,14 +50,7 @@ namespace MyBlog.Repository
             user.UserId = Guid.NewGuid().ToString().ToUpper();
             Db.Users.Add(user);
             int count = Db.SaveChanges();
-            if (count == 1)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return count == 1 ? true : false;
         }
 
         public int FreezeUser(string userId)

@@ -15,14 +15,7 @@ namespace MyBlog.Repository
             sort.SortId = Guid.NewGuid().ToString().ToUpper();
             Db.Sort.Add(sort);
             int count = Db.SaveChanges();
-            if (count == 1)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return count == 1 ? true : false;
         }
 
         public int DeleteSort(string sortId)

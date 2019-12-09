@@ -8,7 +8,7 @@ namespace MyBlog.Models
         public string BlogId { get; set; }
         public string BlogTitle { get; set; }
         public string BlogContent { get; set; }
-        public long BlogViews { get; set; }
+        public string BlogViews { get; set; }
         public long BlogCommentCount { get; set; }
         public DateTime BlogDate { get; set; }
         public long BlogLikeCount { get; set; }
