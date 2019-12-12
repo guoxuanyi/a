@@ -4,6 +4,7 @@ using MyBlog.Models;
 using MyBlog.Models.DTO;
 using MyBlog.Service;
 using MyBlog.Service.Interface;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace MyBlog.Controllers
@@ -31,16 +32,16 @@ namespace MyBlog.Controllers
             return GetService<IUserService>().GetUserByUserId(userId);
         }
 
-        [HttpPost("api/v{version:ApiVersion}/User/login")]
-        public bool Login(UsersDTO usersDTO)
+        [HttpPost("api/v{version:ApiVersion}/User/signIn")]
+        public string SignIn(UsersDTO usersDTO)
         {
-            return GetService<IUserService>().Login(usersDTO);
+            return GetService<IUserService>().SignIn(usersDTO);
         }
 
-        [HttpPost("api/v{version:ApiVersion}/User/register")]
-        public bool Register(Users user)
+        [HttpPost("api/v{version:ApiVersion}/User/signUp")]
+        public bool SignUp(Users user)
         {
-            return GetService<IUserService>().Register(user);
+            return GetService<IUserService>().SignUp(user);
         }
 
         [HttpGet("api/v{version:ApiVersion}/User/users-freeze/{userId}")]
@@ -59,6 +60,13 @@ namespace MyBlog.Controllers
         public int UpdateUser(Users user)
         {
             return GetService<IUserService>().UpdateUser(user);
+        }
+
+        [HttpGet("api/v{version:ApiVersion}/User/userIcon")]
+        public List<string> GetUserIcon(string allUserId)
+        {
+            string[] user = JsonConvert.DeserializeObject<string[]>(allUserId);
+            return null;
         }
     }
 }

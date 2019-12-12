@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace MyBlog.Repository
 {
@@ -11,31 +12,40 @@ namespace MyBlog.Repository
     {
         public List<Users> GetAllUsers()
         {
-            List<Users> users = Db.Users.AsNoTracking().ToList();
+            string sql = "select * from Users";
+            List<Users> users = Db.Users.FromSqlRaw(sql).ToList();
             return users;
         }
 
         public List<Users> GetAllUsersNotDelete()
         {
-            List<Users> users = Db.Users.AsNoTracking().Where(u => u.UserDeleteFlag != 1).ToList();
+            string sql = "select * from Users where user_delete_flag <> 1";
+            List<Users> users = Db.Users.FromSqlRaw(sql).ToList();
             return users;
         }
 
         public Users GetUserByUserId(string userId)
         {
-            Users user = Db.Users.AsNoTracking().FirstOrDefault(u => u.UserId == userId);
+            string sql = "select * from Users where user_id = @userId";
+            SqlParameter param = new SqlParameter("@userId", userId);
+            Users user = Db.Users.FromSqlRaw(@sql, param).FirstOrDefault();
             return user;
         }
 
         public Users GetUserByUserNameAndPassword(string userName, string passWord)
         {
-            Users user = Db.Users.AsNoTracking().FirstOrDefault(u => u.UserName == userName && u.UserPassword == passWord);
+            string sql = "select * from Users where user_name = @userName and user_password = @userPassword";
+            SqlParameter param1 = new SqlParameter("@userName", userName);
+            SqlParameter param2 = new SqlParameter("@userPassword", passWord);
+            Users user = Db.Users.FromSqlRaw(@sql, param1, param2).FirstOrDefault();
             return user;
         }
 
         public bool IsUserNameExist(string userName)
         {
-            int count = Db.Users.AsNoTracking().Where(u => u.UserName == userName).ToList().Count;
+            string sql = "select * from Users where user_name = @userName";
+            SqlParameter param = new SqlParameter("@userName", userName);
+            int count = Db.Users.FromSqlRaw(@sql, param).ToList().Count;
             return count == 0 ? false : true;
         }
 
@@ -55,16 +65,29 @@ namespace MyBlog.Repository
 
         public int FreezeUser(string userId)
         {
-            var user = Db.Users.FirstOrDefault(u => u.UserId == userId);
+            Users user = GetUserByUserId(userId);
             user.UserDeleteFlag = 1;
             return Db.SaveChanges();
         }
 
         public int UnFreezeUser(string userId)
         {
-            var user = Db.Users.FirstOrDefault(u => u.UserId == userId);
+            Users user = GetUserByUserId(userId);
             user.UserDeleteFlag = 0;
             return Db.SaveChanges();
+        }
+
+        public List<string> GetUserIcon(List<string> userIdList)
+        {
+            string sql = "select * from Users where user_id in @userIdList and user_delete_flag <> 1";
+            SqlParameter param = new SqlParameter("@userIdList", userIdList);
+            List<Users> users = Db.Users.FromSqlRaw(@sql, param).ToList();
+            List<string> userIcons = new List<string>();
+            foreach (var item in userIcons)
+            {
+                userIcons.Add(item);
+            }
+            return userIcons;
         }
     }
 }

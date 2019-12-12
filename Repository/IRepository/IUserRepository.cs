@@ -17,5 +17,6 @@ namespace MyBlog.Respostery.IRespostery
         int UpdateUser(Users user);
         int FreezeUser(string userId);
         int UnFreezeUser(string userId);
+        List<string> GetUserIcon(List<string> userIdList);
     }
 }

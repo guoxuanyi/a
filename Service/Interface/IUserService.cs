@@ -14,10 +14,12 @@ namespace MyBlog.Service.Interface
         Users GetUserByUserId(string userId);
         public int GetUserStatus(Users user);
         public bool IsAdmin(Users user);
-        bool Login(UsersDTO usersDTO);
-        bool Register(Users user);
+        string SignIn(UsersDTO usersDTO);
+        bool SignUp(Users user);
         int UpdateUser(Users user);
         int FreezeUser(string userId);
         int UnFreezeUser(string userId);
+        List<string> GetUserIcon(List<string> userId);
+
     }
 }

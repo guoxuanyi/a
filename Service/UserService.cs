@@ -58,16 +58,8 @@ namespace MyBlog.Service
 
         public int GetUserStatus(Users user)
         {
-            bool userIsTrue = Tools.IsNull(user);
-            if (!userIsTrue)
-            {
-                int status = user.UserDeleteFlag;
-                return status;
-            }
-            else
-            {
-                return -2;
-            }
+            int status = user.UserDeleteFlag;
+            return status;
         }
 
         public bool IsAdmin(Users user)
@@ -89,33 +81,47 @@ namespace MyBlog.Service
         /// <param name="userName">用户名</param>
         /// <param name="passWord">密码</param>
         /// <returns>登录状态</returns>
-        public bool Login(UsersDTO usersDTO)
+        public string SignIn(UsersDTO usersDTO)
         {
             Users user = GetUserByUserNameAndPassword(usersDTO.UserName, usersDTO.UserPassword);
-            if (!Tools.IsNull(user))
+            if (!Tools.IsNull(user) && IsAdmin(user))
             {
-                bool isAdmin = IsAdmin(user);
-                int userStatus = GetUserStatus(user);
-                if (isAdmin)
-                {
-                    return isAdmin;
-                }
-                else
-                {
-                    if (userStatus == 0)
-                    {
-                        return !isAdmin;
-                    }
-                    else
-                    {
-                        return isAdmin;
-                    }
-                }
+                return "Admin signin";
             }
-            else
+            else if (!Tools.IsNull(user) && !IsAdmin(user) && GetUserStatus(user) == 0)
             {
-                return false;
+                return "User signin";
             }
+            else if (!Tools.IsNull(user) && !IsAdmin(user) && GetUserStatus(user) != 0)
+            {
+                return "User is frozen";
+            }
+            return "Not found";
+            //if (!Tools.IsNull(user))
+            //{
+            //    bool isAdmin = IsAdmin(user);
+            //    if (!isAdmin)
+            //    {
+            //        int userStatus = GetUserStatus(user);
+            //        if (userStatus == 0)
+            //        {
+            //            return "User signin";
+            //        }
+            //        else
+            //        {
+            //            return "User is frozen";
+            //        }
+            //    }
+            //    else
+            //    {
+            //        return "Admin signin";
+            //    }
+            //}
+            //else
+            //{
+            //    return "Not found";
+            //}
+
         }
 
         /// <summary>
@@ -123,7 +129,7 @@ namespace MyBlog.Service
         /// </summary>
         /// <param name="user">http请求发送的信息</param>
         /// <returns>注册结果</returns>
-        public bool Register(Users user)
+        public bool SignUp(Users user)
         {
             bool isUserNameExist = IsUserNameExist(user.UserName);
             if (!isUserNameExist)
@@ -167,6 +173,11 @@ namespace MyBlog.Service
         public int UnFreezeUser(string userId)
         {
             return GetRepository<IUserRepository>().UnFreezeUser(userId);
+        }
+
+        public List<string> GetUserIcon(List<string> userId)
+        {
+            return GetRepository<IUserRepository>().GetUserIcon(userId);
         }
     }
 }

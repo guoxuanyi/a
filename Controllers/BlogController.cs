@@ -14,7 +14,7 @@ namespace MyBlog.Controllers
 
     public class BlogController : DataFactory
     {
-        [HttpGet("api/v{version:ApiVersion}/Blog/blogs")]
+        [HttpGet("api/v{version:ApiVersion}/Blog/all-blogs")]
         public List<Blog> GetAllBlogs()
         {
             return GetService<IBlogService>().GetAllBlogs();
@@ -33,7 +33,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet]
-        [Route("api/Blog/getBlogsByUserId")]
+        [Route("aapi/v{version:ApiVersion}/Blog/blogs")]
         public List<Blog> GetBlogsByUserId(string userId)
         {
             return GetService<IBlogService>().GetBlogsByUserId(userId);
@@ -67,7 +67,7 @@ namespace MyBlog.Controllers
             return GetService<IBlogService>().ReDeleteBlog(blogId);
         }
 
-        [HttpGet("api/v{version:ApiVersion}/Blog/blogLikeCount-update/{blogId}")]
+        [HttpGet("api/v{version:ApiVersion}/Blog/blogLikeCount-update")]
         public int UpdateblogLikeCount(string blogId)
         {
             return GetService<IBlogService>().UpdateBlogLikeCount(blogId);

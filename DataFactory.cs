@@ -18,7 +18,6 @@ namespace MyBlog
                 if (Tools.IsNull(db))
                 {
                     db = new gxyContext();
-                    
                 }
                 return db;
             }

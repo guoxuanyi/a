@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace MyBlog.Repository
 {
@@ -23,37 +24,41 @@ namespace MyBlog.Repository
 
         public int DeleteBlog(string blogId)
         {
-            Blog blog = Db.Blog.FirstOrDefault(b => b.BlogId == blogId);
+            Blog blog = GetBlogByBlogId(blogId);
             blog.BlogDeleteFlag = 1;
             return Db.SaveChanges();
         }
 
         public int ReDeleteBlog(string blogId)
         {
-            Blog blog = Db.Blog.FirstOrDefault(b => b.BlogId == blogId);
+            Blog blog = GetBlogByBlogId(blogId);
             blog.BlogDeleteFlag = 0;
             return Db.SaveChanges();
         }
 
         public List<Blog> GetAllBlogs()
         {
-            List<Blog> blogs = Db.Blog.AsNoTracking().ToList();
+            string sql = "select * from Blog";
+            List<Blog> blogs = Db.Blog.FromSqlRaw(sql).ToList();
             return blogs;
         }
 
         public List<Blog> GetAllBlogsNotDelete()
         {
-            List<Blog> blogs = Db.Blog.AsNoTracking().Where(b => b.BlogDeleteFlag != 1).ToList();
+            string sql = "select * from Blog where blog_delete_flag <> 1";
+            List<Blog> blogs = Db.Blog.FromSqlRaw(sql).ToList();
             return blogs;
         }
 
         public List<Blog> GetBlogsByUserId(string userId)
         {
-            List<UserBlogRelation> relation = Db.UserBlogRelation.AsNoTracking().Where(ubr => ubr.UserId == userId).ToList();
+            string sql = "select user_id, blog_id from UserBlogRelation where user_id = @userId";
+            SqlParameter param = new SqlParameter("@userId", userId);
+            List<UserBlogRelation> relation = Db.UserBlogRelation.FromSqlRaw(@sql, param).ToList();
             List<Blog> blogs = new List<Blog>();
             foreach (var item in relation)
             {
-                Blog blog = Db.Blog.AsNoTracking().FirstOrDefault(b => b.BlogId == item.BlogId);
+                Blog blog = GetBlogByBlogId(item.BlogId);
                 blogs.Add(blog);
             }
             return blogs;
@@ -61,27 +66,35 @@ namespace MyBlog.Repository
 
         public List<Blog> GetBlogsNotDeleteByUserName(string userName)
         {
-            Users user = Db.Users.AsNoTracking().FirstOrDefault(u => u.UserName == userName);
+            string userSql = "select user_id,user_name,user_password,user_email,user_photo,user_register_date," +
+                "user_phone_number,user_nickname,admin,user_delete_flag " +
+                "from Users where user_name = @userName";
+            SqlParameter userParam = new SqlParameter("@userName", userName);
+            Users user = Db.Users.FromSqlRaw(@userSql, userParam).FirstOrDefault();
             List<Blog> blogs = new List<Blog>();
-            if (Tools.IsNull(user))
+            if (!Tools.IsNull(user))
             {
-                return blogs;
-            }
-            else
-            {
-                List<UserBlogRelation> relation = Db.UserBlogRelation.AsNoTracking().Where(ubr => ubr.UserId == user.UserId).ToList();
+                string relationsql = "select user_id, blog_id from UserBlogRelation where user_id = @userId";
+                SqlParameter relationparam = new SqlParameter("@userId", user.UserId);
+                List<UserBlogRelation> relation = Db.UserBlogRelation.FromSqlRaw(@relationsql, relationparam).ToList();
                 foreach (var item in relation)
                 {
-                    Blog blog = Db.Blog.AsNoTracking().FirstOrDefault(b => b.BlogId == item.BlogId && b.BlogDeleteFlag != 1);
+                    string blogSql = "select blog_id, blog_title, blog_content, blog_views, blog_comment_count, " +
+                        "blog_date, blog_like_count, blog_delete_flag " +
+                        "from Blog where blog_id = @blogId and blog_delete_flag <> 1";
+                    SqlParameter blogParam = new SqlParameter("@blogId", item.BlogId);
+                    Blog blog = Db.Blog.FromSqlRaw(@blogSql, blogParam).FirstOrDefault();
                     blogs.Add(blog);
                 }
-                return blogs;
             }
+            return blogs;
         }
 
         public List<Blog> GetDeletedBlogs()
         {
-            List<Blog> blogs = Db.Blog.AsNoTracking().Where(b => b.BlogDeleteFlag == 1).ToList();
+            string sql = "select blog_id, blog_title, blog_content, blog_views, blog_comment_count, " +
+                "blog_date, blog_like_count, blog_delete_flag from Blog where blog_delete_flag == 1";
+            List<Blog> blogs = Db.Blog.FromSqlRaw(sql).ToList();
             return blogs;
         }
 
@@ -92,15 +105,31 @@ namespace MyBlog.Repository
 
         public List<Blog> GetNotDeleteBlogsTop4()
         {
-            List<Blog> blogs = Db.Blog.AsNoTracking().Where(b => b.BlogDeleteFlag != 1).OrderByDescending(b => b.BlogViews).ToList();
+            string sql = "select blog_id, blog_title, blog_content, blog_views, blog_comment_count, " +
+                        "blog_date, blog_like_count, blog_delete_flag " +
+                        "from Blog where blog_delete_flag <> 1 order by blog_views desc";
+            List<Blog> blogs = Db.Blog.FromSqlRaw(sql).ToList();
             return blogs;
         }
 
         public int UpdateBlogLikeCount(string blogId)
         {
-            Blog blog = Db.Blog.Where(b => b.BlogDeleteFlag!=1).FirstOrDefault(b => b.BlogId == blogId);
+            string sql = "select blog_id, blog_title, blog_content, blog_views, blog_comment_count, " +
+                        "blog_date, blog_like_count, blog_delete_flag " +
+                        "from Blog where blog_id = @blogId and blog_delete_flag <> 1";
+            SqlParameter param = new SqlParameter("@blogId", blogId);
+            Blog blog = Db.Blog.FromSqlRaw(@sql, param).FirstOrDefault();
             blog.BlogLikeCount += 1;
             return Db.SaveChanges();
+        }
+
+        public Blog GetBlogByBlogId(string blogId)
+        {
+            string sql = "select blog_id, blog_title, blog_content, blog_views, blog_comment_count, " +
+                "blog_date, blog_like_count, blog_delete_flag from Blog where blog_id = @blogId";
+            SqlParameter param = new SqlParameter("@blogId", blogId);
+            Blog blog = Db.Blog.FromSqlRaw(@sql, param).FirstOrDefault();
+            return blog;
         }
     }
 }
